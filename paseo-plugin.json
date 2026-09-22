@@ -4,6 +4,9 @@
     "paseo": ">=0.8.0 <0.10.0"
   },
   "build": [
-    ["npm", "ci"]
+    [
+      "node",
+      "scripts/prepare-plugin.mjs"
+    ]
   ]
 }

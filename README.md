@@ -35,7 +35,7 @@ paseo plugin add ZedRover/ratex-paseo --ref main
 paseo plugin ls
 ```
 
-A private repository requires Git access from the daemon machine. The plugin manifest runs `npm ci` during installation, which also generates the embedded assets. The runtime plugin ID is **`ratex-formula`**.
+A private repository requires Git access from the daemon machine. The plugin manifest runs `npm ci --omit=dev` during Git installation, which also generates the embedded assets. The runtime plugin ID is **`ratex-formula`**.
 
 To update a Git installation:
 
@@ -155,9 +155,29 @@ scripts/              Embedded asset generation and render smoke test
 tests/                Unit tests and browser regression harness
 ```
 
-## Distribution status
+## Publishing
 
-This repository is installable as a Paseo Git plugin. npm publishing is not yet enabled: `package.json` intentionally still contains `"private": true`. Publishing to npm requires a separate package-name/version decision and a review of the packed files and release workflow.
+The npm package is `ratex-math-render`. Before publishing a new version:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run check:package
+npm publish --access public
+```
+
+`files` explicitly includes generated WASM and fonts, both READMEs, and license notices. The pinned `ratex-wasm` dependency is bundled to preserve the internal paths used by its renderer and WASM bindings. Tests and development tools are excluded from the tarball.
+
+Paseo skips lifecycle scripts for npm installations, so the published package includes ready-to-use assets. The manifest's preparation command runs `npm ci --omit=dev` for Git checkouts with a lockfile, and checks the shipped assets for npm installations.
+
+After the package has been published, install it with a Paseo version that supports npm sources:
+
+```bash
+paseo plugin install npm:ratex-math-render@0.1.0
+```
+
+Each release needs a new package version. GitHub Actions trusted publishing must be configured separately before GitHub releases can publish automatically.
 
 ## Acknowledgments
 

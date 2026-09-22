@@ -1,7 +1,6 @@
 {
-  "name": "ratex-formula",
-  "private": true,
-  "version": "0.0.0",
+  "name": "ratex-math-render",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "prepare": "node scripts/embed-wasm.mjs && node scripts/embed-fonts.mjs",
@@ -10,7 +9,8 @@
     "test:browser": "node --experimental-strip-types tests/browser/run.mjs",
     "render:launch": "node --experimental-strip-types scripts/render-launch.ts",
     "embed-wasm": "node scripts/embed-wasm.mjs",
-    "embed-fonts": "node scripts/embed-fonts.mjs"
+    "embed-fonts": "node scripts/embed-fonts.mjs",
+    "check:package": "node scripts/check-package.mjs"
   },
   "dependencies": {
     "ratex-wasm": "0.1.14"
@@ -26,5 +26,33 @@
     "typescript": "^5.9.3",
     "zod": "^4.4.3"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "description": "LaTeX rendering and selectable formula source for Paseo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZedRover/ratex-paseo.git"
+  },
+  "homepage": "https://github.com/ZedRover/ratex-paseo#readme",
+  "bugs": {
+    "url": "https://github.com/ZedRover/ratex-paseo/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "paseo-plugin.json",
+    "index.client.tsx",
+    "index.server.ts",
+    "client/",
+    "server/",
+    "shared/",
+    "scripts/embed-wasm.mjs",
+    "scripts/embed-fonts.mjs",
+    "scripts/prepare-plugin.mjs",
+    "README.zh-CN.md"
+  ],
+  "bundleDependencies": [
+    "ratex-wasm"
+  ]
 }

@@ -35,7 +35,7 @@ paseo plugin add ZedRover/ratex-paseo --ref main
 paseo plugin ls
 ```
 
-如果仓库为私有，daemon 所在机器需要具备相应的 Git 访问权限。插件声明会在安装时执行 `npm ci`，同时生成内嵌资源。插件运行 ID 为 **`ratex-formula`**。
+如果仓库为私有，daemon 所在机器需要具备相应的 Git 访问权限。插件声明会在 Git 安装时执行 `npm ci --omit=dev`，同时生成内嵌资源。插件运行 ID 为 **`ratex-formula`**。
 
 更新通过 Git 安装的插件：
 
@@ -155,9 +155,29 @@ scripts/              内嵌资源生成与渲染冒烟检查
 tests/                单元测试与浏览器回归验证
 ```
 
-## 分发状态
+## 发布
 
-本仓库可以作为 Paseo Git 插件安装。npm 发布尚未启用，`package.json` 目前仍保留 `"private": true`。发布到 npm 前，需要另行确定包名和版本，并检查打包文件和发布流程。
+npm 包名为 `ratex-math-render`。发布新版本前执行：
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run check:package
+npm publish --access public
+```
+
+`files` 明确包含生成的 WASM、字体、中英文 README 和许可证声明。锁定版本的 `ratex-wasm` 依赖随包分发，保留渲染器与 WASM 绑定所需的内部路径。测试和开发工具不进入安装包。
+
+Paseo 从 npm 安装时跳过生命周期脚本，因此发布包内已经包含可用资源。插件的准备命令会对带锁文件的 Git 检出执行 `npm ci --omit=dev`，对 npm 安装则检查随包资源。
+
+包发布成功后，可以使用支持 npm 来源的 Paseo 版本安装：
+
+```bash
+paseo plugin install npm:ratex-math-render@0.1.0
+```
+
+每次发布都需要新版本号。通过 GitHub Release 自动发布前，还需要另行配置 GitHub Actions 和 npm Trusted Publishing。
 
 ## 致谢
 

@@ -159,6 +159,20 @@ tests/                单元测试与浏览器回归验证
 
 本仓库可以作为 Paseo Git 插件安装。npm 发布尚未启用，`package.json` 目前仍保留 `"private": true`。发布到 npm 前，需要另行确定包名和版本，并检查打包文件和发布流程。
 
-## 第三方声明
+## 致谢
 
-RaTeX（`ratex-wasm`）采用 MIT 许可证。其附带的 KaTeX 字体采用 SIL Open Font License 1.1；分发声明保留在 [client/vendor/FONT-LICENSE.txt](client/vendor/FONT-LICENSE.txt)。
+本插件建立在以下项目及其贡献者的工作之上：
+
+- [RaTeX](https://github.com/erweixin/RaTeX)：通过 `ratex-wasm` 提供 Rust/WASM 数学公式解析与排版引擎，以及网页端 DisplayList 渲染器。
+- [Paseo](https://github.com/getpaseo/paseo)：提供宿主应用、插件 SDK、时间线集成和客户端／服务端运行环境。
+- [KaTeX](https://github.com/KaTeX/KaTeX)：提供由 `ratex-wasm` 附带并内嵌到本插件中的数学字体。
+
+感谢这些项目的维护者和贡献者，让本插件的集成成为可能。
+
+## 许可证与第三方声明
+
+本项目的原创代码采用 [MIT 许可证](LICENSE)，版权所有 © 2026 ZedRover。
+
+第三方代码和资源保留各自的许可证。RaTeX（`ratex-wasm`）采用 MIT 许可证；附带的 KaTeX 字体采用 SIL Open Font License 1.1。相关版权和许可证声明保留在 [client/vendor/FONT-LICENSE.txt](client/vendor/FONT-LICENSE.txt)。本项目的 MIT 许可证不会替代字体的 OFL 许可证或其他依赖的许可证。
+
+分发包含这些第三方组件的插件时，应同时保留相关组件适用的版权和许可证声明，以及本项目的许可证。

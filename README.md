@@ -159,6 +159,20 @@ tests/                Unit tests and browser regression harness
 
 This repository is installable as a Paseo Git plugin. npm publishing is not yet enabled: `package.json` intentionally still contains `"private": true`. Publishing to npm requires a separate package-name/version decision and a review of the packed files and release workflow.
 
-## Third-party notices
+## Acknowledgments
 
-RaTeX (`ratex-wasm`) is distributed under the MIT license. Its bundled KaTeX fonts use the SIL Open Font License 1.1; the distributed notices are retained in [client/vendor/FONT-LICENSE.txt](client/vendor/FONT-LICENSE.txt).
+This plugin builds on the work of these projects and their contributors:
+
+- [RaTeX](https://github.com/erweixin/RaTeX): the Rust/WASM math parser and layout engine, plus the web DisplayList renderer used through `ratex-wasm`.
+- [Paseo](https://github.com/getpaseo/paseo): the host application, plugin SDK, timeline integration, and client/server runtime.
+- [KaTeX](https://github.com/KaTeX/KaTeX): the math font files bundled by `ratex-wasm` and embedded in this plugin.
+
+Thank you to their maintainers and contributors for making this integration possible.
+
+## License and third-party notices
+
+This project's original code is licensed under the [MIT License](LICENSE), copyright © 2026 ZedRover.
+
+Third-party code and assets retain their own licenses. RaTeX (`ratex-wasm`) uses the MIT license; the bundled KaTeX fonts use the SIL Open Font License 1.1. Their copyright and license notices are preserved in [client/vendor/FONT-LICENSE.txt](client/vendor/FONT-LICENSE.txt). The project's MIT license does not replace the fonts' OFL license or other dependency licenses.
+
+When redistributing the plugin with these third-party components, include their applicable copyright and license notices as well as this project's license.

@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -9,10 +10,12 @@ const outPath = path.join(outDir, "ratex-wasm-bytes.ts");
 
 const bytes = await readFile(wasmPath);
 await mkdir(outDir, { recursive: true });
-const base64 = bytes.toString("base64");
+const compressed = gzipSync(bytes, { level: 9 });
+const base64 = compressed.toString("base64");
 const source = `// Generated from ratex-wasm ${path.relative(root, wasmPath)} by scripts/embed-wasm.mjs.
+// Gzip-compressed binary data; server/ratex.ts decompresses it before WASM initialization.
 // Embedded so the Paseo server bundle can instantiate WASM without fetch() or a plugin directory path.
-export const RATEX_WASM_BASE64 = "${base64}";
+export const RATEX_WASM_GZIP_BASE64 = "${base64}";
 `;
 await writeFile(outPath, source);
-console.log(`wrote ${path.relative(root, outPath)} (${bytes.length} wasm bytes, ${base64.length} base64 chars)`);
+console.log(`wrote ${path.relative(root, outPath)} (${bytes.length} wasm bytes, ${compressed.length} gzip bytes, ${base64.length} base64 chars)`);

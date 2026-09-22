@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
+import { gunzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
@@ -8,7 +9,7 @@ import parse from "semver/functions/parse.js";
 import satisfies from "semver/functions/satisfies.js";
 import { clearRenderCache, initRatex, renderLatexToDisplayList } from "../server/ratex.ts";
 import { renderLatex } from "../server/render.ts";
-import { RATEX_WASM_BASE64 } from "../server/vendor/ratex-wasm-bytes.ts";
+import { RATEX_WASM_GZIP_BASE64 } from "../server/vendor/ratex-wasm-bytes.ts";
 import {
   DEFAULT_LATEX,
   KNOWN_DISPLAY_ITEM_TYPES,
@@ -182,7 +183,7 @@ test("the embedded WASM matches the installed ratex-wasm", async () => {
   const digest = (bytes: Buffer | string) =>
     createHash("sha256").update(bytes).digest("hex");
   assert.equal(
-    digest(Buffer.from(RATEX_WASM_BASE64, "base64")),
+    digest(gunzipSync(Buffer.from(RATEX_WASM_GZIP_BASE64, "base64"))),
     digest(installed),
     "server/vendor/ratex-wasm-bytes.ts is stale — run npm run embed-wasm",
   );

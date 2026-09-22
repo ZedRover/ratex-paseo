@@ -140,7 +140,7 @@ Messages without a complete formula retain Paseo's built-in Markdown renderer. F
 | `server/vendor/ratex-wasm-bytes.ts` | `npm run embed-wasm` |
 | `client/vendor/fonts.ts` | `npm run embed-fonts` |
 
-These files are ignored by Git and regenerated from the pinned `ratex-wasm` dependency. Do not use `--ignore-scripts` unless you then run `npm run prepare`. Asset consistency is checked by `npm test`.
+These files are ignored by Git and regenerated from the pinned `ratex-wasm` dependency. The WASM binary is gzip-compressed before Base64 embedding and decompressed once during server initialization. Tests verify that decompression reproduces the upstream binary byte for byte. Do not use `--ignore-scripts` unless you then run `npm run prepare`. Asset consistency is checked by `npm test`.
 
 ## Browser regression checks
 

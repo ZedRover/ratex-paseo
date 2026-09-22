@@ -21,4 +21,13 @@ for (const path of paths) {
   assert.ok(!/^(tests\/|\.github\/|\.env(?:\.|$)|\.npmrc$|package-lock\.json$)/.test(path),
     `Unexpected published file: ${path}`);
 }
+// Keep our runtime sources (including embedded data) within the community
+// catalog's inspection budget. Count all our runtime files conservatively.
+const runtimeFiles = pack.files.filter(({ path }) =>
+  path === "paseo-plugin.json" ||
+  /^(?:index\.(?:client|server)\.tsx?$|(?:client|server|shared)\/.*\.[cm]?[jt]sx?$)/.test(path));
+const runtimeBytes = runtimeFiles.reduce((sum, { size }) => sum + size, 0);
+assert.ok(runtimeFiles.length <= 200, "Runtime source count exceeds 200 files");
+assert.ok(runtimeBytes <= 2_000_000, `Runtime sources exceed 2 MB: ${runtimeBytes} bytes`);
+console.log(`Runtime source budget: ${runtimeFiles.length} files, ${runtimeBytes} bytes.`);
 console.log(`${pack.name}@${pack.version}: ${pack.entryCount} files, ${pack.unpackedSize} unpacked bytes; package checks passed.`);

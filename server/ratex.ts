@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { gunzipSync } from "node:zlib";
 import {
   initRatex as initRatexWasm,
   renderLatexToDisplayList as renderLatexToDisplayListWasm,
@@ -9,7 +10,7 @@ import glueInit, {
   renderLatex as glueRenderLatex,
   renderLatexWithOptions as glueRenderLatexWithOptions,
 } from "../node_modules/ratex-wasm/pkg/ratex_wasm.js";
-import { RATEX_WASM_BASE64 } from "./vendor/ratex-wasm-bytes.ts";
+import { RATEX_WASM_GZIP_BASE64 } from "./vendor/ratex-wasm-bytes.ts";
 import { normalizeColor, type DisplayList } from "../shared/ratex.ts";
 
 /** Bounded so a long transcript cannot grow the daemon's heap without limit. */
@@ -37,7 +38,7 @@ export async function initRatex(): Promise<void> {
   if (initFailure) throw initFailure;
   if (!initPromise) {
     initPromise = initRatexWasm(async () => {
-      await glueInit({ module_or_path: Buffer.from(RATEX_WASM_BASE64, "base64") });
+      await glueInit({ module_or_path: gunzipSync(Buffer.from(RATEX_WASM_GZIP_BASE64, "base64")) });
       return {
         renderLatex: glueRenderLatex,
         renderLatexWithOptions: glueRenderLatexWithOptions,

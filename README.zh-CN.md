@@ -140,7 +140,7 @@ a^2 + b^2 = c^2
 | `server/vendor/ratex-wasm-bytes.ts` | `npm run embed-wasm` |
 | `client/vendor/fonts.ts` | `npm run embed-fonts` |
 
-这些文件由 Git 忽略，并根据锁定版本的 `ratex-wasm` 依赖重新生成。如果安装时使用了 `--ignore-scripts`，需要随后手动执行 `npm run prepare`。`npm test` 会检查资源与依赖的一致性。
+这些文件由 Git 忽略，并根据锁定版本的 `ratex-wasm` 依赖重新生成。WASM 二进制先经 gzip 压缩再以内嵌 Base64 保存，服务端初始化时解压一次；测试会验证解压后的字节与上游二进制完全一致。如果安装时使用了 `--ignore-scripts`，需要随后手动执行 `npm run prepare`。`npm test` 会检查资源与依赖的一致性。
 
 ## 浏览器回归验证
 

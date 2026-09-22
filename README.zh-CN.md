@@ -196,7 +196,32 @@ npm publish --access public
 
 Paseo 从 npm 安装时跳过生命周期脚本，因此发布包内已经包含可用资源。插件的准备命令会对带锁文件的 Git 检出执行 `npm ci --omit=dev`，对 npm 安装则检查随包资源。
 
-每次发布都需要新版本号。通过 GitHub Release 自动发布前，还需要另行配置 GitHub Actions 和 npm Trusted Publishing。
+### 通过 GitHub Actions 发布
+
+[`.github/workflows/publish.yml`](.github/workflows/publish.yml) 会检查推送到 `main` 的提交、PR 和手动触发的运行。发布**正式 GitHub Release** 后，工作流先执行检查，再使用 OIDC 发布到 npm 并附带来源证明。草稿和预发布版本不会上传 npm。Release 标签必须与 `package.json`、`package-lock.json` 中的版本一致，并带 `v` 前缀。
+
+在 [npm 包设置](https://www.npmjs.com/package/ratex-math-render/access) 中配置一次可信发布者：
+
+| 字段 | 值 |
+| --- | --- |
+| Provider | GitHub Actions |
+| Organization or user | `ZedRover` |
+| Repository | `ratex-paseo` |
+| Workflow filename | `publish.yml` |
+| Environment | 留空 |
+| Allowed actions | 启用直接 `npm publish` |
+
+无需配置 `NPM_TOKEN` 或 `NODE_AUTH_TOKEN` Secret。工作流仅为发布任务授予 `id-token: write`，并使用 GitHub 托管 runner。详见 [npm 可信发布文档](https://docs.npmjs.com/trusted-publishers/)。
+
+从 `0.1.0` 发布下一个补丁版本时，在干净且已同步远端的 `main` 上执行：
+
+```bash
+npm version patch -m "chore(release): %s"
+git push origin main --follow-tags
+gh release create v0.1.1 --verify-tag --generate-notes
+```
+
+后续发布替换为新的版本标签。仅推送标签不会发布 npm，还需要发布 Release。可以在 GitHub Actions 中查看 **Check and publish** 的结果。发布失败时，按需修正 npm 可信发布配置后重新运行失败任务；已经发布的 npm 版本不能重复使用。
 
 ## 致谢
 

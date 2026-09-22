@@ -196,7 +196,32 @@ npm publish --access public
 
 Paseo skips lifecycle scripts for npm installations, so the published package includes ready-to-use assets. The manifest's preparation command runs `npm ci --omit=dev` for Git checkouts with a lockfile, and checks the shipped assets for npm installations.
 
-Each release needs a new package version. GitHub Actions trusted publishing must be configured separately before GitHub releases can publish automatically.
+### GitHub Actions releases
+
+[`.github/workflows/publish.yml`](.github/workflows/publish.yml) checks pushes to `main`, pull requests, and manual runs. Publishing a **stable GitHub Release** runs the same checks, then publishes to npm using OIDC with provenance. Drafts and prereleases do not publish. The release tag must exactly match `v` plus the version in `package.json` and `package-lock.json`.
+
+Configure an npm trusted publisher once in the [package settings](https://www.npmjs.com/package/ratex-math-render/access):
+
+| Field | Value |
+| --- | --- |
+| Provider | GitHub Actions |
+| Organization or user | `ZedRover` |
+| Repository | `ratex-paseo` |
+| Workflow filename | `publish.yml` |
+| Environment | Leave empty |
+| Allowed actions | Enable direct `npm publish` |
+
+No `NPM_TOKEN` or `NODE_AUTH_TOKEN` secret is required. The workflow grants `id-token: write` only to the publish job and uses GitHub-hosted runners. See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
+
+For the next patch release after `0.1.0`, start from a clean, up-to-date `main`:
+
+```bash
+npm version patch -m "chore(release): %s"
+git push origin main --follow-tags
+gh release create v0.1.1 --verify-tag --generate-notes
+```
+
+Use the new version's tag for subsequent releases. Pushing a tag alone does not publish; the Release must be published. Inspect the **Check and publish** run in GitHub Actions. If publication fails, correct the npm trust configuration as needed and rerun the failed job; never reuse an already published npm version.
 
 ## Acknowledgments
 

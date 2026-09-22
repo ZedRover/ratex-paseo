@@ -24,9 +24,34 @@
 | Paseo | 插件声明兼容 `>=0.8.0 <0.10.0`，开发使用的 SDK 为 `0.9.0-beta.2` |
 | 客户端 | 网页端支持公式渲染和双击交互；原生客户端显示源码 |
 | 开发环境 | 建议 Node.js 22.14+；已在 Node.js 22.21.1、npm 11.10.1 下验证 |
-| 依赖 | 使用 `npm ci` 按 `package-lock.json` 安装 |
+| 安装环境 | daemon 所在机器可运行 Node.js 和 npm；Paseo 版本需要支持 npm 插件来源 |
 
 目标 daemon 需要已启用 Paseo 插件。插件作为可信代码在 daemon 和连接的客户端中运行。
+
+## 从 npm 安装（推荐）
+
+在 Paseo daemon 所在机器安装已发布的 [ratex-math-render](https://www.npmjs.com/package/ratex-math-render)：
+
+```bash
+paseo plugin install npm:ratex-math-render
+paseo plugin ls
+```
+
+也可以在 Paseo 的 **Settings → Plugins → Plugin source** 中填写 `npm:ratex-math-render`。Paseo 会下载包并安装依赖，无需额外执行 `npm install`。
+
+安装指定版本：
+
+```bash
+paseo plugin install npm:ratex-math-render@0.1.0
+```
+
+npm 包名是 `ratex-math-render`，安装后的插件 ID 为 **`ratex-formula`**。更新时使用插件 ID：
+
+```bash
+paseo plugin update ratex-formula
+```
+
+安装完成后刷新网页客户端，加载公式界面。
 
 ## 从 GitHub 安装
 
@@ -170,12 +195,6 @@ npm publish --access public
 `files` 明确包含生成的 WASM、字体、中英文 README 和许可证声明。锁定版本的 `ratex-wasm` 依赖随包分发，保留渲染器与 WASM 绑定所需的内部路径。测试和开发工具不进入安装包。
 
 Paseo 从 npm 安装时跳过生命周期脚本，因此发布包内已经包含可用资源。插件的准备命令会对带锁文件的 Git 检出执行 `npm ci --omit=dev`，对 npm 安装则检查随包资源。
-
-包发布成功后，可以使用支持 npm 来源的 Paseo 版本安装：
-
-```bash
-paseo plugin install npm:ratex-math-render@0.1.0
-```
 
 每次发布都需要新版本号。通过 GitHub Release 自动发布前，还需要另行配置 GitHub Actions 和 npm Trusted Publishing。
 

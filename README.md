@@ -24,9 +24,34 @@ Plugin controls, tooltips, and accessibility labels use English. The installed P
 | Paseo | Manifest targets `>=0.8.0 <0.10.0`; developed against SDK `0.9.0-beta.2` |
 | Client | Web for rendered formulas and double-click interaction; native clients show source |
 | Development runtime | Node.js 22.14+ recommended; tested with Node.js 22.21.1 and npm 11.10.1 |
-| Dependencies | Installed from `package-lock.json` with `npm ci` |
+| Installation runtime | Node.js and npm available on the daemon host; use a Paseo version that supports npm plugin sources |
 
 Paseo plugins must already be enabled on the target daemon. Plugins run as trusted code on that daemon and in its connected clients.
+
+## Install from npm (recommended)
+
+Install the published [ratex-math-render](https://www.npmjs.com/package/ratex-math-render) package on your Paseo daemon host:
+
+```bash
+paseo plugin install npm:ratex-math-render
+paseo plugin ls
+```
+
+You can also paste `npm:ratex-math-render` into **Settings → Plugins → Plugin source** in Paseo. Paseo downloads the package and installs its dependencies; no separate `npm install` command is needed.
+
+To install a specific version:
+
+```bash
+paseo plugin install npm:ratex-math-render@0.1.0
+```
+
+The npm package name is `ratex-math-render`; the installed plugin ID is **`ratex-formula`**. Use that ID to update the plugin:
+
+```bash
+paseo plugin update ratex-formula
+```
+
+Refresh the web client after installation to load the formula UI.
 
 ## Install from GitHub
 
@@ -170,12 +195,6 @@ npm publish --access public
 `files` explicitly includes generated WASM and fonts, both READMEs, and license notices. The pinned `ratex-wasm` dependency is bundled to preserve the internal paths used by its renderer and WASM bindings. Tests and development tools are excluded from the tarball.
 
 Paseo skips lifecycle scripts for npm installations, so the published package includes ready-to-use assets. The manifest's preparation command runs `npm ci --omit=dev` for Git checkouts with a lockfile, and checks the shipped assets for npm installations.
-
-After the package has been published, install it with a Paseo version that supports npm sources:
-
-```bash
-paseo plugin install npm:ratex-math-render@0.1.0
-```
 
 Each release needs a new package version. GitHub Actions trusted publishing must be configured separately before GitHub releases can publish automatically.
 

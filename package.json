@@ -1,0 +1,29 @@
+{
+  "name": "ratex-formula",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "prepare": "node scripts/embed-wasm.mjs && node scripts/embed-fonts.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "test:browser": "node --experimental-strip-types tests/browser/run.mjs",
+    "render:launch": "node --experimental-strip-types scripts/render-launch.ts",
+    "embed-wasm": "node scripts/embed-wasm.mjs",
+    "embed-fonts": "node scripts/embed-fonts.mjs"
+  },
+  "dependencies": {
+    "ratex-wasm": "0.1.14"
+  },
+  "devDependencies": {
+    "@getpaseo/plugin": "0.9.0-beta.2",
+    "@tanstack/react-query": "^5.90.11",
+    "@types/node": "^26.6.2",
+    "@types/react": "~19.2.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "semver": "^7.7.3",
+    "typescript": "^5.9.3",
+    "zod": "^4.4.3"
+  }
+}

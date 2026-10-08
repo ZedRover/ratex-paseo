@@ -6,6 +6,7 @@ import { Text, View } from "react-native";
 import { CHAT_FONT_SIZE } from "../shared/layout";
 import { mathSource } from "../shared/math";
 import { renderLatexRpc } from "../shared/ratex";
+import { CODE_FONT_FAMILY } from "./code-font";
 import { FormulaCanvas, isWebPlatform } from "./web";
 import { FormulaSource } from "./formula-source";
 
@@ -57,7 +58,7 @@ export function RatexFormula({
   const displayList = result?.ok ? result.displayList : null;
   const styles = useMemo(
     () => ({
-      fallback: { color: colors.foregroundMuted, fontFamily: "monospace", fontSize },
+      fallback: { color: colors.foregroundMuted, fontFamily: CODE_FONT_FAMILY, fontSize },
       wrap: {
         alignItems: "center" as const,
         alignSelf: "stretch" as const,

@@ -2,6 +2,7 @@ import type { PluginTheme } from "@getpaseo/plugin";
 import { copyText } from "@getpaseo/plugin/client/react-native";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { CODE_FONT_FAMILY } from "./code-font";
 
 export function FormulaSource({ source, colors, displayMode, onClose }: {
   source: string;
@@ -46,7 +47,7 @@ export function FormulaSource({ source, colors, displayMode, onClose }: {
       <Text
         accessibilityLabel="TeX source"
         selectable
-        style={{ color: colors.foreground, fontFamily: "monospace", fontSize: 14,
+        style={{ color: colors.foreground, fontFamily: CODE_FONT_FAMILY, fontSize: 14,
           lineHeight: 21, userSelect: "text" }}
       >
         {source}

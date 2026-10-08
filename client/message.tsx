@@ -11,6 +11,7 @@ import {
   type TableAlign,
 } from "../shared/markdown";
 import type { ratexMessageSchema } from "../shared/ratex";
+import { CODE_FONT_FAMILY, CODE_FONT_SCALE } from "./code-font";
 import { RatexFormula } from "./formula-view";
 
 /** Tied to the schema the renderer is registered with, so the two cannot drift. */
@@ -94,19 +95,24 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
     tableHeadText: { ...body, fontWeight: "700" as const },
     code: {
       color: theme.colors.foreground,
-      fontFamily: "monospace",
+      fontFamily: CODE_FONT_FAMILY,
       fontSize: compact ? 13 : 14,
       backgroundColor: theme.colors.surface2,
       padding: 12,
       borderRadius: 8,
       userSelect: "text" as const,
     },
-    inlineCode: {
-      fontFamily: "monospace",
+    // Matches Paseo's own code_inline span; native ignores padding and radius on nested text.
+    inlineCode: (fontSize: number) => ({
+      fontFamily: CODE_FONT_FAMILY,
+      fontSize: Math.round(fontSize * CODE_FONT_SCALE),
       backgroundColor: theme.colors.surface2,
       color: theme.colors.foreground,
+      paddingHorizontal: 4,
+      paddingVertical: 2,
+      borderRadius: 6,
       userSelect: "text" as const,
-    },
+    }),
     strong: { fontWeight: "700" as const, userSelect: "text" as const },
     em: { fontStyle: "italic" as const, userSelect: "text" as const },
     strike: { textDecorationLine: "line-through" as const, userSelect: "text" as const },
@@ -315,7 +321,7 @@ function renderInlines(
         );
       case "code":
         return (
-          <Text key={index} selectable style={styles.inlineCode}>
+          <Text key={index} selectable style={styles.inlineCode(fontSize)}>
             {node.text}
           </Text>
         );

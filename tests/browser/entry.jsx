@@ -10,6 +10,7 @@ const colors = {
 const text = [
   "# Heading $E=mc^2$", "",
   "Given $a^2$ and \\(b^2\\), we get:", "",
+  "Run `npm test` first.", "",
   "$$\nc^2 = a^2 + b^2\n$$", "",
   "**Bold $c$ text** and [docs](https://example.com/$x$).", "",
   "> Quote $x_i$", "", "- [x] Complete $a^2$", "",

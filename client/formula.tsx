@@ -2,6 +2,7 @@ import type { PluginSurfaceProps, PluginWorkspacePanelProps } from "@getpaseo/pl
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { DEFAULT_LATEX } from "../shared/ratex";
+import { CODE_FONT_FAMILY } from "./code-font";
 import { RatexFormula } from "./formula-view";
 
 type PlaygroundProps = {
@@ -50,7 +51,7 @@ function FormulaPlayground({ theme, layout }: PlaygroundProps) {
         backgroundColor: theme.colors.surface2,
         color: theme.colors.foreground,
         textAlignVertical: "top" as const,
-        fontFamily: "monospace",
+        fontFamily: CODE_FONT_FAMILY,
         fontSize: compact ? 14 : 15,
       },
       row: {
@@ -96,7 +97,7 @@ function FormulaPlayground({ theme, layout }: PlaygroundProps) {
       },
       source: {
         color: theme.colors.foreground,
-        fontFamily: "monospace",
+        fontFamily: CODE_FONT_FAMILY,
       },
     }),
     [compact, pad, theme],

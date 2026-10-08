@@ -119,6 +119,22 @@ try {
     assert.ok(clipboard.includes(rangeCopy), `clipboard differs from Range: ${JSON.stringify(clipboard)}`);
     console.log("chrome: real mouse drag + Ctrl+C + clipboard read passed; 20 embedded fonts loaded without network");
 
+    // Paseo forces its UI font on every #root node except [data-pmono]; code keeps its own.
+    const inlineCode = await page.evaluate(() => {
+      const style = document.createElement("style");
+      style.textContent = ":is(#root) *:not([data-pmono]):not([data-pmono] *){font-family:serif;}";
+      document.head.appendChild(style);
+      const span = [...document.querySelectorAll("#root span")].find((node) => node.textContent === "npm test");
+      const { fontFamily, fontSize, paddingLeft, borderTopLeftRadius } = getComputedStyle(span);
+      style.remove();
+      return { fontFamily, fontSize, paddingLeft, borderTopLeftRadius };
+    });
+    assert.deepEqual(inlineCode, {
+      fontFamily: `SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
+      fontSize: "13px", paddingLeft: "4px", borderTopLeftRadius: "6px",
+    });
+    console.log("chrome: inline code uses Paseo's code font stack, size and padding");
+
     // Actual double-click coordinates must hit the formula even though its bitmap is
     // excluded from selection. Exercise inline and display formulas independently.
     for (const [index, source] of [[2, "\\(b^2\\)"], [3, "$$\nc^2 = a^2 + b^2\n$$"]]) {

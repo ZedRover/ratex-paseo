@@ -21,7 +21,7 @@ Plugin controls, tooltips, and accessibility labels use English. The installed P
 
 | Component | Requirement |
 | --- | --- |
-| Paseo | Manifest targets `>=0.8.0 <0.10.0`; developed against SDK `0.9.0-beta.2` |
+| Paseo | Manifest targets `>=0.8.0 <0.12.0`, including 0.11 betas; developed against SDK `0.11.1` |
 | Client | Web for rendered formulas and double-click interaction; native clients show source |
 | Development runtime | Node.js 22.14+ recommended; tested with Node.js 22.21.1 and npm 11.10.1 |
 | Installation runtime | Node.js and npm available on the daemon host; use a Paseo version that supports npm plugin sources |

@@ -95,7 +95,7 @@ test("plugin manifest and client entry register a RaTeX UI", async () => {
   };
   assert.equal(manifest.id, "ratex-formula");
   const range = manifest.requirements?.paseo;
-  assert.equal(range, ">=0.8.0 <0.10.0");
+  assert.equal(range, ">=0.8.0 <0.12.0");
   function compatible(version: string): boolean {
     const parsed = parse(version);
     if (!parsed) return false;
@@ -105,7 +105,12 @@ test("plugin manifest and client entry register a RaTeX UI", async () => {
   assert.equal(compatible("0.8.0"), true);
   assert.equal(compatible("0.9.0-beta.2"), true);
   assert.equal(compatible("0.9.0"), true);
-  assert.equal(compatible("0.10.0"), false);
+  assert.equal(compatible("0.10.0-beta.1"), true);
+  assert.equal(compatible("0.10.3"), true);
+  assert.equal(compatible("0.11.0-beta.5"), true);
+  assert.equal(compatible("0.11.1"), true);
+  assert.equal(compatible("0.12.0-beta.1"), false);
+  assert.equal(compatible("0.12.0"), false);
 
   const client = await readSource("../index.client.tsx");
   assert.match(client, /addSurface\("ratex"/);

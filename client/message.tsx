@@ -1,9 +1,10 @@
 import type { PluginTheme } from "@getpaseo/plugin";
-import { openExternalUrl, type PluginTimelineItemProps } from "@getpaseo/plugin/client";
-import { useRevealedText } from "@getpaseo/plugin/client/react-native";
-import { useMemo, type ReactNode } from "react";
+import { openExternalUrl, useAgent, type PluginTimelineItemProps } from "@getpaseo/plugin/client";
+import { useRevealedText, useToast } from "@getpaseo/plugin/client/react-native";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import type { z } from "zod";
+import { codeFileTarget, fileLinkTarget, type FileLocation } from "../shared/file-link";
 import {
   markdownBlocks,
   type InlineNode,
@@ -13,11 +14,17 @@ import {
 import type { ratexMessageSchema } from "../shared/ratex";
 import { CODE_FONT_FAMILY, CODE_FONT_SCALE } from "./code-font";
 import { RatexFormula } from "./formula-view";
+import { openWorkspaceFile } from "./open-file";
 
 /** Tied to the schema the renderer is registered with, so the two cannot drift. */
 type RatexMessageData = z.infer<typeof ratexMessageSchema>;
 
 type Layout = PluginTimelineItemProps["layout"];
+
+type FileLinks = { cwd: string | null; open(location: FileLocation, node: unknown): void };
+
+/** Cleared inside link text, so code within a link does not become a nested link. */
+const FileLinkContext = createContext<FileLinks | null>(null);
 
 const HEADING_SIZE = [32, 26, 22, 18, 16, 15];
 
@@ -113,6 +120,7 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
       borderRadius: 6,
       userSelect: "text" as const,
     }),
+    codeLink: { color: theme.colors.accent },
     strong: { fontWeight: "700" as const, userSelect: "text" as const },
     em: { fontStyle: "italic" as const, userSelect: "text" as const },
     strike: { textDecorationLine: "line-through" as const, userSelect: "text" as const },
@@ -128,24 +136,45 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
 
 type MessageStyles = ReturnType<typeof messageStyles>;
 
-export function RatexMessage({ item, theme, layout }: PluginTimelineItemProps<RatexMessageData>) {
+export function RatexMessage({
+  agentId,
+  item,
+  theme,
+  layout,
+}: PluginTimelineItemProps<RatexMessageData>) {
   const revealed = useRevealedText(item.data.text, item.data.phase);
   const blocks = useMemo(() => markdownBlocks(revealed), [revealed]);
   const compact = layout.compact;
   const styles = useMemo(() => messageStyles(theme, compact), [compact, theme]);
+  // Paseo resolves an agent's relative file links against its cwd.
+  const cwd = useAgent(agentId, (agent) => agent.cwd);
+  const toast = useToast();
+  const fileLinks = useMemo<FileLinks>(
+    () => ({
+      cwd,
+      open(location, node) {
+        if (!openWorkspaceFile(node, location)) {
+          toast.error(`Couldn't open ${location.path} from this message.`);
+        }
+      },
+    }),
+    [cwd, toast],
+  );
 
   return (
-    <View style={styles.column}>
-      {blocks.map((block, index) => (
-        <MarkdownBlockView
-          key={index}
-          block={block}
-          theme={theme}
-          layout={layout}
-          styles={styles}
-        />
-      ))}
-    </View>
+    <FileLinkContext.Provider value={fileLinks}>
+      <View style={styles.column}>
+        {blocks.map((block, index) => (
+          <MarkdownBlockView
+            key={index}
+            block={block}
+            theme={theme}
+            layout={layout}
+            styles={styles}
+          />
+        ))}
+      </View>
+    </FileLinkContext.Provider>
   );
 }
 
@@ -307,23 +336,18 @@ function renderInlines(
           );
         }
         return (
-          <Text
-            key={index}
-            selectable
-            style={styles.link}
-            accessibilityRole="link"
-            onPress={() => {
-              void openExternalUrl(node.href).catch(() => {});
-            }}
-          >
+          <LinkText key={index} href={node.href} style={styles.link}>
             {renderInlines(node.children, theme, layout, styles, fontSize)}
-          </Text>
+          </LinkText>
         );
       case "code":
         return (
-          <Text key={index} selectable style={styles.inlineCode(fontSize)}>
-            {node.text}
-          </Text>
+          <InlineCode
+            key={index}
+            text={node.text}
+            style={styles.inlineCode(fontSize)}
+            linkStyle={styles.codeLink}
+          />
         );
       case "math":
         // No wrapping View: react-native-web renders one as an inline-flex box inside the
@@ -341,4 +365,61 @@ function renderInlines(
         );
     }
   });
+}
+
+function LinkText({
+  href,
+  style,
+  children,
+}: {
+  href: string;
+  style: MessageStyles["link"];
+  children: ReactNode;
+}) {
+  const links = useContext(FileLinkContext);
+  const target = links && fileLinkTarget(href, links.cwd);
+  return (
+    <Text
+      selectable
+      style={style}
+      accessibilityRole="link"
+      onPress={(event) => {
+        if (links && target) links.open(target, event.currentTarget);
+        else void openExternalUrl(href).catch(() => {});
+      }}
+    >
+      <FileLinkContext.Provider value={null}>{children}</FileLinkContext.Provider>
+    </Text>
+  );
+}
+
+/** Code naming a workspace file opens it, like Paseo's own inline code paths. */
+function InlineCode({
+  text,
+  style,
+  linkStyle,
+}: {
+  text: string;
+  style: ReturnType<MessageStyles["inlineCode"]>;
+  linkStyle: MessageStyles["codeLink"];
+}) {
+  const links = useContext(FileLinkContext);
+  const target = links && codeFileTarget(text, links.cwd);
+  if (!links || !target) {
+    return (
+      <Text selectable style={style}>
+        {text}
+      </Text>
+    );
+  }
+  return (
+    <Text
+      selectable
+      style={[style, linkStyle]}
+      accessibilityRole="link"
+      onPress={(event) => links.open(target, event.currentTarget)}
+    >
+      {text}
+    </Text>
+  );
 }

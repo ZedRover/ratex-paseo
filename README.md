@@ -127,6 +127,7 @@ Messages without a complete formula retain Paseo's built-in Markdown renderer. F
 
 - This is a limited Markdown renderer, not a complete CommonMark/GFM implementation.
 - Images are shown as their label and URL, rather than fetched and displayed.
+- Links and code spans that name a local file, such as `client/message.tsx:105`, open it in the workspace like Paseo's own messages (web only). A bare file name in a code span, such as `message.tsx`, stays plain code because plugins cannot use Paseo's file lookup.
 - Copying preserves formula source, but does not reconstruct all original Markdown markers or table separators.
 - Native clients display TeX source; Canvas rendering and double-click source inspection are web features.
 - Unsupported formulas fall back to their source.

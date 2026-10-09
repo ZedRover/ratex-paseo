@@ -35,7 +35,8 @@ const bundle = await build({
           ? `export const useRpc = () => async (input) => {
               const response = await fetch('/render', {method:'POST',body:JSON.stringify(input)});
               return response.json();
-            }; export const openExternalUrl = async (url) => { window.lastOpenedUrl = url; };`
+            }; export const openExternalUrl = async (url) => { window.lastOpenedUrl = url; };
+            export const useAgent = (agentId, select) => select({ id: agentId, cwd: "/repo" });`
           : "export const defineRpc = (contract) => contract;",
       loader: "js",
     }));
@@ -134,6 +135,29 @@ try {
       fontSize: "13px", paddingLeft: "4px", borderTopLeftRadius: "6px",
     });
     console.log("chrome: inline code uses Paseo's code font stack, size and padding");
+
+    // File links go to Paseo's pane opener with agent-relative paths; URLs still open externally.
+    const findLink = (text) => page.evaluateHandle((text) =>
+      [...document.querySelectorAll("#root [role=link]")].find((node) => node.textContent === text), text);
+    for (const text of ["message", "shared/math.ts#L3", "docs"]) await (await findLink(text)).click();
+    assert.deepEqual(await page.evaluate(() => window.openedFiles), [
+      { location: { path: "client/message.tsx", lineStart: 105 }, disposition: "preferred" },
+      { location: { path: "shared/math.ts", lineStart: 3 }, disposition: "preferred" },
+    ]);
+    assert.equal(await page.evaluate(() => window.lastOpenedUrl), "https://example.com/$x$");
+    // Without a pane ancestor (the message remounts outside it) the link explains itself.
+    const remounted = async (changes) => {
+      const stale = await findLink("message");
+      await page.evaluate((changes) => window.setFixture(changes), changes);
+      await page.waitForFunction((node) => !node.isConnected, {}, stale);
+    };
+    await remounted({ pane: false });
+    await (await findLink("message")).click();
+    assert.deepEqual(await page.evaluate(() => window.toasts), ["Couldn't open client/message.tsx from this message."]);
+    assert.equal(await page.evaluate(() => window.openedFiles.length), 2);
+    await remounted({ pane: true });
+    await page.waitForFunction(() => document.querySelectorAll("canvas").length === 8);
+    console.log("chrome: file links open through the workspace pane; URLs open externally; missing pane shows a toast");
 
     // Actual double-click coordinates must hit the formula even though its bitmap is
     // excluded from selection. Exercise inline and display formulas independently.

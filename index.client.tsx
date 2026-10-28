@@ -5,16 +5,10 @@ import type { z } from "zod";
 import { hasCompleteMath } from "./shared/math";
 import { ratexMessageSchema } from "./shared/ratex";
 
-function transformMath({
-  item,
-  phase,
-}: {
-  item: { text: string };
-  phase: "streaming" | "complete";
-}) {
+function transformMath({ item }: { item: { text: string } }) {
   if (!hasCompleteMath(item.text)) return undefined;
   // Typed against the renderer's schema: a payload change breaks the build, not the UI.
-  const data: z.infer<typeof ratexMessageSchema> = { text: item.text, phase };
+  const data: z.infer<typeof ratexMessageSchema> = { text: item.text };
   return {
     items: [
       {

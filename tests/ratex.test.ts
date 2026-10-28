@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { gunzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import parse from "semver/functions/parse.js";
@@ -95,25 +95,22 @@ test("plugin manifest and client entry register a RaTeX UI", async () => {
   };
   assert.equal(manifest.id, "ratex-formula");
   const range = manifest.requirements?.paseo;
-  assert.equal(range, ">=0.8.0");
+  assert.equal(range, ">=0.13.0");
   function compatible(version: string): boolean {
     const parsed = parse(version);
     if (!parsed) return false;
     const stableCore = `${parsed.major}.${parsed.minor}.${parsed.patch}`;
     return satisfies(version, range ?? "") || satisfies(stableCore, range ?? "");
   }
-  assert.equal(compatible("0.8.0"), true);
-  assert.equal(compatible("0.9.0-beta.2"), true);
-  assert.equal(compatible("0.9.0"), true);
-  assert.equal(compatible("0.10.0-beta.1"), true);
-  assert.equal(compatible("0.10.3"), true);
-  assert.equal(compatible("0.11.0-beta.5"), true);
-  assert.equal(compatible("0.11.1"), true);
-  assert.equal(compatible("0.12.0-beta.1"), true);
-  assert.equal(compatible("0.12.0"), true);
+  assert.equal(compatible("0.13.0-beta.1"), true);
+  assert.equal(compatible("0.13.0"), true);
+  assert.equal(compatible("0.13.2"), true);
+  assert.equal(compatible("0.14.0-beta.1"), true);
   assert.equal(compatible("1.0.0"), true);
-  assert.equal(compatible("0.7.9"), false);
-  assert.equal(compatible("0.8.0-beta.1"), true);
+  // Before 0.13, useToast and copyText are not exported from /client/ui.
+  assert.equal(compatible("0.12.0"), false);
+  assert.equal(compatible("0.12.0-beta.3"), false);
+  assert.equal(compatible("0.8.0"), false);
 
   const client = await readSource("../index.client.tsx");
   assert.match(client, /addSurface\("ratex"/);
@@ -122,6 +119,14 @@ test("plugin manifest and client entry register a RaTeX UI", async () => {
   assert.match(client, /addTimelineTransformer/);
   assert.match(client, /itemType: "assistant_message"/);
   assert.match(client, /kind: "ratex-message"/);
+
+  // 0.13.0-beta.1 and beta.2 dropped useRevealedText from this deprecated entry.
+  const clientFiles = await readdir(fileURLToPath(new URL("../client/", import.meta.url).href));
+  for (const file of clientFiles.filter((name) => /\.tsx?$/.test(name))) {
+    const source = await readSource(`../client/${file}`);
+    assert.doesNotMatch(source, /@getpaseo\/plugin\/client\/react-native/);
+    assert.doesNotMatch(source, /useRevealedText/);
+  }
 
   const wrapper = await readSource("../server/ratex.ts");
   assert.match(wrapper, /from "ratex-wasm"/);

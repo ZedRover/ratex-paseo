@@ -21,7 +21,7 @@ Plugin controls, tooltips, and accessibility labels use English. The installed P
 
 | Component | Requirement |
 | --- | --- |
-| Paseo | Manifest targets `>=0.8.0` with no upper bound, including prereleases; developed against SDK `0.11.1` |
+| Paseo | Manifest targets `>=0.13.0` with no upper bound, including prereleases; developed against SDK `0.13.2`. For Paseo 0.8 to 0.12, install `ratex-math-render@0.1.6` |
 | Client | Web for rendered formulas and double-click interaction; native clients show source |
 | Development runtime | Node.js 22.14+ recommended; tested with Node.js 22.21.1 and npm 11.10.1 |
 | Installation runtime | Node.js and npm available on the daemon host; use a Paseo version that supports npm plugin sources |

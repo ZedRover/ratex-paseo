@@ -25,19 +25,17 @@ const bundle = await build({
     "react-native": dependency("react-native-web"),
   },
   plugins: [{ name: "paseo-host-fixture", setup(builder) {
-    builder.onResolve({ filter: /^@getpaseo\/plugin(?:\/.*)?$/ }, ({ path: name }) => name.endsWith("/react-native")
+    builder.onResolve({ filter: /^@getpaseo\/plugin(?:\/.*)?$/ }, ({ path: name }) => name.endsWith("/client/ui")
       ? { path: path.join(root, "tests/browser/host-native.jsx") }
       : { path: name, namespace: "host" });
     builder.onLoad({ filter: /.*/, namespace: "host" }, ({ path }) => ({
-      contents: path.endsWith("/react-native")
-        ? "export const useRevealedText = (text) => text;"
-        : path.endsWith("/client")
-          ? `export const useRpc = () => async (input) => {
-              const response = await fetch('/render', {method:'POST',body:JSON.stringify(input)});
-              return response.json();
-            }; export const openExternalUrl = async (url) => { window.lastOpenedUrl = url; };
-            export const useAgent = (agentId, select) => select({ id: agentId, cwd: "/repo" });`
-          : "export const defineRpc = (contract) => contract;",
+      contents: path.endsWith("/client")
+        ? `export const useRpc = () => async (input) => {
+            const response = await fetch('/render', {method:'POST',body:JSON.stringify(input)});
+            return response.json();
+          }; export const openExternalUrl = async (url) => { window.lastOpenedUrl = url; };
+          export const useAgent = (agentId, select) => select({ id: agentId, cwd: "/repo" });`
+        : "export const defineRpc = (contract) => contract;",
       loader: "js",
     }));
   } }],

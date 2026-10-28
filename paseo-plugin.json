@@ -1,7 +1,7 @@
 {
   "id": "ratex-formula",
   "requirements": {
-    "paseo": ">=0.8.0"
+    "paseo": ">=0.13.0"
   },
   "build": [
     [

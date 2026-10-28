@@ -1,6 +1,6 @@
 import type { PluginTheme } from "@getpaseo/plugin";
 import { openExternalUrl, useAgent, type PluginTimelineItemProps } from "@getpaseo/plugin/client";
-import { useRevealedText, useToast } from "@getpaseo/plugin/client/react-native";
+import { useToast } from "@getpaseo/plugin/client/ui";
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import type { z } from "zod";
@@ -142,8 +142,7 @@ export function RatexMessage({
   theme,
   layout,
 }: PluginTimelineItemProps<RatexMessageData>) {
-  const revealed = useRevealedText(item.data.text, item.data.phase);
-  const blocks = useMemo(() => markdownBlocks(revealed), [revealed]);
+  const blocks = useMemo(() => markdownBlocks(item.data.text), [item.data.text]);
   const compact = layout.compact;
   const styles = useMemo(() => messageStyles(theme, compact), [compact, theme]);
   // Paseo resolves an agent's relative file links against its cwd.

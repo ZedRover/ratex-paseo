@@ -85,7 +85,6 @@ const displayListSchema = z.object({
 
 export const ratexMessageSchema = z.object({
   text: z.string(),
-  phase: z.enum(["streaming", "complete"]),
 });
 
 export const renderLatexRpc = defineRpc({

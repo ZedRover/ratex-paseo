@@ -33,7 +33,7 @@ function Fixture() {
   window.resetFixture = () => setFixture(initial);
   const message = <RatexMessage
     agentId="agent"
-    item={{ id: "fixture", data: { text: fixture.text, phase: "complete" } }}
+    item={{ id: "fixture", data: { text: fixture.text } }}
     theme={{ colors: fixture.colors }}
     layout={{ compact: fixture.compact, platform: fixture.platform }}
   />;

@@ -1,6 +1,6 @@
 {
   "name": "ratex-math-render",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "scripts": {
     "prepare": "node scripts/embed-wasm.mjs && node scripts/embed-fonts.mjs",

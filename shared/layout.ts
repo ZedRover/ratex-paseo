@@ -6,6 +6,32 @@ export type FormulaMetrics = {
 
 export const CHAT_FONT_SIZE = 16;
 
+/** Paseo's default code text size (`theme.fontSize.code`). */
+export const CODE_FONT_SIZE = 12;
+
+const HEADING_SCALE = [1.6, 1.4, 1.2, 1.1, 1, 1];
+
+/**
+ * Paseo 0.13's default Markdown typography for chat messages: 15px content text on web and
+ * 16px on iOS/Android, at any layout width. Plugins cannot read the Appearance text sizes,
+ * so a user who changes them sees these defaults in formula messages.
+ */
+export function messageTypography(platform: string) {
+  const fontSize = platform === "web" ? 15 : 16;
+  return {
+    fontSize,
+    lineHeight: Math.round(fontSize * 1.4),
+    heading(level: number) {
+      const size = fontSize * HEADING_SCALE[Math.min(Math.max(level, 1), HEADING_SCALE.length) - 1];
+      return { fontSize: Math.round(size), lineHeight: Math.round(size * 1.3) };
+    },
+    /** Code inside text of `size`: Paseo's code size in body text, scaled up in headings. */
+    codeSize(size: number) {
+      return Math.round((CODE_FONT_SIZE * size) / fontSize);
+    },
+  };
+}
+
 /** `depth` is optional in the DisplayList protocol; absent means zero, never NaN. */
 export function formulaDepth(metrics: FormulaMetrics): number {
   return Number.isFinite(metrics.depth) ? (metrics.depth as number) : 0;

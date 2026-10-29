@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { CHAT_FONT_SIZE, formulaDepth, formulaLayout } from "../shared/layout.ts";
+import { CHAT_FONT_SIZE, formulaDepth, formulaLayout, messageTypography } from "../shared/layout.ts";
 
 test("same em size keeps glyph scale at 1 regardless of formula width", () => {
   const narrow = formulaLayout({ width: 2, height: 3, depth: 1 }, CHAT_FONT_SIZE, 4);
@@ -45,5 +45,29 @@ test("CSS size matches the device-pixel box renderToCanvas allocates", () => {
     );
     assert.equal(layout.displayWidth * dpr, pixelWidth, `width mismatch at dpr ${dpr}`);
     assert.equal(layout.displayHeight * dpr, pixelHeight, `height mismatch at dpr ${dpr}`);
+  }
+});
+
+test("message typography follows Paseo's default Markdown sizes", () => {
+  const web = messageTypography("web");
+  assert.deepEqual([web.fontSize, web.lineHeight], [15, 21]);
+  assert.deepEqual(
+    [1, 2, 3, 4, 5, 6].map((level) => web.heading(level)),
+    [
+      { fontSize: 24, lineHeight: 31 },
+      { fontSize: 21, lineHeight: 27 },
+      { fontSize: 18, lineHeight: 23 },
+      { fontSize: 17, lineHeight: 21 },
+      { fontSize: 15, lineHeight: 20 },
+      { fontSize: 15, lineHeight: 20 },
+    ],
+  );
+  assert.equal(web.codeSize(web.fontSize), 12);
+
+  for (const platform of ["ios", "android"]) {
+    const native = messageTypography(platform);
+    assert.deepEqual([native.fontSize, native.lineHeight], [16, 22]);
+    assert.deepEqual(native.heading(1), { fontSize: 26, lineHeight: 33 });
+    assert.equal(native.codeSize(native.fontSize), 12);
   }
 });

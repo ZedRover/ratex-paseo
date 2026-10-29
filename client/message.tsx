@@ -5,6 +5,7 @@ import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import type { z } from "zod";
 import { codeFileTarget, fileLinkTarget, type FileLocation } from "../shared/file-link";
+import { messageTypography } from "../shared/layout";
 import {
   markdownBlocks,
   type InlineNode,
@@ -12,7 +13,7 @@ import {
   type TableAlign,
 } from "../shared/markdown";
 import type { ratexMessageSchema } from "../shared/ratex";
-import { CODE_FONT_FAMILY, CODE_FONT_SCALE } from "./code-font";
+import { CODE_FONT_FAMILY } from "./code-font";
 import { RatexFormula } from "./formula-view";
 import { openWorkspaceFile } from "./open-file";
 
@@ -26,19 +27,13 @@ type FileLinks = { cwd: string | null; open(location: FileLocation, node: unknow
 /** Cleared inside link text, so code within a link does not become a nested link. */
 const FileLinkContext = createContext<FileLinks | null>(null);
 
-const HEADING_SIZE = [32, 26, 22, 18, 16, 15];
-
-function headingSize(level: number, compact: boolean): number {
-  const size = HEADING_SIZE[Math.min(level, HEADING_SIZE.length) - 1];
-  return compact ? size - 2 : size;
-}
-
-function messageStyles(theme: PluginTheme, compact: boolean) {
-  const bodySize = compact ? 15 : 16;
+function messageStyles(theme: PluginTheme, compact: boolean, platform: Layout["platform"]) {
+  const type = messageTypography(platform);
+  const bodySize = type.fontSize;
   const body = {
     color: theme.colors.foreground,
     fontSize: bodySize,
-    lineHeight: compact ? 22 : 24,
+    lineHeight: type.lineHeight,
     userSelect: "text" as const,
   };
   return {
@@ -48,12 +43,11 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
     },
     paragraph: body,
     bodySize,
-    headingSize: (level: number) => headingSize(level, compact),
+    headingSize: (level: number) => type.heading(level).fontSize,
     heading: (level: number) => ({
-      color: theme.colors.foreground,
-      fontSize: headingSize(level, compact),
+      ...type.heading(level),
+      color: level >= 6 ? theme.colors.foregroundMuted : theme.colors.foreground,
       fontWeight: "700" as const,
-      lineHeight: compact ? 26 : 32,
       marginTop: compact ? 6 : 8,
       userSelect: "text" as const,
     }),
@@ -65,8 +59,8 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
     },
     marker: {
       color: theme.colors.foregroundMuted,
-      fontSize: compact ? 15 : 16,
-      lineHeight: compact ? 22 : 24,
+      fontSize: bodySize,
+      lineHeight: type.lineHeight,
       userSelect: "text" as const,
     },
     quote: {
@@ -103,7 +97,8 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
     code: {
       color: theme.colors.foreground,
       fontFamily: CODE_FONT_FAMILY,
-      fontSize: compact ? 13 : 14,
+      fontSize: type.codeSize(bodySize),
+      lineHeight: type.lineHeight,
       backgroundColor: theme.colors.surface2,
       padding: 12,
       borderRadius: 8,
@@ -112,7 +107,7 @@ function messageStyles(theme: PluginTheme, compact: boolean) {
     // Matches Paseo's own code_inline span; native ignores padding and radius on nested text.
     inlineCode: (fontSize: number) => ({
       fontFamily: CODE_FONT_FAMILY,
-      fontSize: Math.round(fontSize * CODE_FONT_SCALE),
+      fontSize: type.codeSize(fontSize),
       backgroundColor: theme.colors.surface2,
       color: theme.colors.foreground,
       paddingHorizontal: 4,
@@ -143,8 +138,11 @@ export function RatexMessage({
   layout,
 }: PluginTimelineItemProps<RatexMessageData>) {
   const blocks = useMemo(() => markdownBlocks(item.data.text), [item.data.text]);
-  const compact = layout.compact;
-  const styles = useMemo(() => messageStyles(theme, compact), [compact, theme]);
+  const { compact, platform } = layout;
+  const styles = useMemo(
+    () => messageStyles(theme, compact, platform),
+    [compact, platform, theme],
+  );
   // Paseo resolves an agent's relative file links against its cwd.
   const cwd = useAgent(agentId, (agent) => agent.cwd);
   const toast = useToast();

@@ -11,6 +11,3 @@ export const CODE_FONT_FAMILY =
     : Platform.OS === "ios"
       ? "Menlo"
       : "monospace";
-
-/** Paseo's default code size relative to chat text (12px against 15px). */
-export const CODE_FONT_SCALE = 0.8;

@@ -103,6 +103,19 @@ try {
   }
   console.log(`${mode}: Range selection retains all math delimiters, multiline source and literal code`);
 
+  // Paseo's web Markdown: 15px content, headings at 1.6x, 12px code, line height 1.4x content.
+  const typography = await page.evaluate(() => {
+    const nodes = [...document.querySelectorAll("#root *")];
+    const metrics = (prefix) => {
+      const node = nodes.findLast((candidate) => candidate.textContent.startsWith(prefix));
+      const { fontSize, lineHeight } = getComputedStyle(node);
+      return `${fontSize}/${lineHeight}`;
+    };
+    return { heading: metrics("Heading"), paragraph: metrics("Given"), code: metrics("before $$literal") };
+  });
+  assert.deepEqual(typography, { heading: "24px/31px", paragraph: "15px/21px", code: "12px/21px" });
+  console.log(`${mode}: message text uses Paseo's default font sizes`);
+
   if (mode === "chrome") {
     await page.waitForFunction(() => [...document.fonts].filter((font) => font.family.startsWith("KaTeX_")).every((font) => font.status === "loaded"));
     const fontCount = await page.evaluate(() => [...document.fonts].filter((font) => font.family.startsWith("KaTeX_")).length);
@@ -130,7 +143,7 @@ try {
     });
     assert.deepEqual(inlineCode, {
       fontFamily: `SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`,
-      fontSize: "13px", paddingLeft: "4px", borderTopLeftRadius: "6px",
+      fontSize: "12px", paddingLeft: "4px", borderTopLeftRadius: "6px",
     });
     console.log("chrome: inline code uses Paseo's code font stack, size and padding");
 
